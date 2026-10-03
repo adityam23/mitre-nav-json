@@ -8,7 +8,8 @@
     "navigator": "5.0.0"
   },
   "layout": {
-    "showID": true,
+    "showID": false,
+    "showName": true,
     "aggregateFunction": "average"
   },
   "techniques": [
