@@ -61,15 +61,92 @@ def test_errors_are_reported_per_file_and_fail_the_run(
     assert not (output_dir / "bad.json").exists()
 
 
-def test_generate_rejects_colliding_output_names(
+def test_colliding_output_names_fail_only_those_requests(
     inputs: Path, tmp_path: Path, repository: DatasetRepository, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    for name in ("apt28.yaml", "apt28.yml"):
+    for name in ("apt28.yaml", "apt28.yml", "other.yaml"):
         (inputs / name).write_text("domain: enterprise-attack\n")
-
     output_dir = tmp_path / "out"
-    args = ["generate", str(inputs / "apt28.yaml"), str(inputs / "apt28.yml"), "--output-dir", str(output_dir)]
+    files = [str(inputs / name) for name in ("apt28.yaml", "apt28.yml", "other.yaml")]
 
-    assert main(args, repository=repository) == 1
-    assert "would overwrite" in capsys.readouterr().err
-    assert not output_dir.exists()
+    assert main(["generate", *files, "--output-dir", str(output_dir)], repository=repository) == 1
+
+    assert capsys.readouterr().err.count("is also generated from") == 2
+    assert [p.name for p in output_dir.iterdir()] == ["other.json"]
+
+
+def _sync(inputs: Path, output_dir: Path, repository: DatasetRepository) -> int:
+    return main(["sync", "--input-dir", str(inputs), "--output-dir", str(output_dir)], repository=repository)
+
+
+def test_sync_regenerates_every_request_despite_failures(
+    inputs: Path, tmp_path: Path, repository: DatasetRepository
+) -> None:
+    (inputs / "a.yaml").write_text("domain: enterprise-attack\n")
+    (inputs / "broken.yaml").write_text("domain: enterprise-attack\nthreat_actors: [Nobody]\n")
+    (inputs / "c.yml").write_text("domain: enterprise-attack\nthreat_actors: [APT28]\n")
+    (inputs / "notes.txt").write_text("not a request\n")
+    output_dir = tmp_path / "out"
+
+    assert _sync(inputs, output_dir, repository) == 1
+
+    assert sorted(p.name for p in output_dir.iterdir()) == ["a.json", "c.json"]
+
+
+def test_sync_keeps_last_good_layer_of_broken_request(
+    inputs: Path, tmp_path: Path, repository: DatasetRepository
+) -> None:
+    request = inputs / "apt28.yaml"
+    request.write_text("domain: enterprise-attack\nthreat_actors: [APT28]\n")
+    output_dir = tmp_path / "out"
+    assert _sync(inputs, output_dir, repository) == 0
+    good = (output_dir / "apt28.json").read_text()
+
+    request.write_text("domain: enterprise-attack\nthreat_actors: [Nobody]\n")
+
+    assert _sync(inputs, output_dir, repository) == 1
+    assert (output_dir / "apt28.json").read_text() == good
+
+
+def test_sync_removes_layers_without_request_and_is_deterministic(
+    inputs: Path, tmp_path: Path, repository: DatasetRepository, capsys: pytest.CaptureFixture[str]
+) -> None:
+    (inputs / "kept.yaml").write_text("domain: enterprise-attack\n")
+    output_dir = tmp_path / "out"
+    output_dir.mkdir()
+    (output_dir / "deleted-request.json").write_text("{}")
+    (output_dir / ".gitkeep").write_text("")
+
+    assert _sync(inputs, output_dir, repository) == 0
+    first = (output_dir / "kept.json").read_text()
+    assert _sync(inputs, output_dir, repository) == 0
+
+    assert sorted(p.name for p in output_dir.iterdir()) == [".gitkeep", "kept.json"]
+    assert (output_dir / "kept.json").read_text() == first
+    assert "deleted-request.json: removed (no request file)" in capsys.readouterr().out
+
+
+def test_sync_refuses_missing_input_dir(
+    tmp_path: Path, repository: DatasetRepository, capsys: pytest.CaptureFixture[str]
+) -> None:
+    output_dir = tmp_path / "out"
+    output_dir.mkdir()
+    (output_dir / "layer.json").write_text("{}")
+
+    assert _sync(tmp_path / "missing", output_dir, repository) == 1
+
+    assert "does not exist" in capsys.readouterr().err
+    assert (output_dir / "layer.json").exists()
+
+
+def test_validate_without_files_checks_every_request(
+    inputs: Path, repository: DatasetRepository, capsys: pytest.CaptureFixture[str]
+) -> None:
+    (inputs / "good.yaml").write_text("domain: enterprise-attack\n")
+    (inputs / "broken.yaml").write_text("domain: enterprise-attack\nthreat_actors: [Nobody]\n")
+
+    assert main(["validate", "--input-dir", str(inputs)], repository=repository) == 1
+
+    captured = capsys.readouterr()
+    assert "good.yaml: OK" in captured.out
+    assert "broken.yaml: error: threat actor 'Nobody' not found" in captured.err

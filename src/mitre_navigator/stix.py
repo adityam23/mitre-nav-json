@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import difflib
+import os
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -13,7 +14,8 @@ from mitreattack.stix20 import MitreAttackData
 
 from . import releases
 
-DEFAULT_CACHE_DIR = Path(pooch.os_cache("mitre-navigator"))
+# CI points MITRE_NAVIGATOR_CACHE_DIR at a directory it persists between runs.
+DEFAULT_CACHE_DIR = Path(os.environ.get("MITRE_NAVIGATOR_CACHE_DIR") or pooch.os_cache("mitre-navigator"))
 
 DatasetLoader = Callable[[str, str], MitreAttackData]
 

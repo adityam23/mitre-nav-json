@@ -59,7 +59,7 @@ def build_layer(dataset: AttackDataset, actors: Sequence[ThreatActor], *, name: 
             # Layer and Navigator versions are the defaults of the installed navlayers schema.
             "versions": Versions(attack=dataset.attack_version.split(".", 1)[0]),
             "description": _describe(dataset, actors),
-            "layout": {"showID": True},
+            "layout": {"showID": False, "showName": True},
             "techniques": techniques,
             "legendItems": legend_items,
             "metadata": [{"name": "threat_actor", "value": f"{a.name} ({a.attack_id})"} for a in actors],
