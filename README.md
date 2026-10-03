@@ -23,9 +23,10 @@ Layers show technique and tactic names without IDs. The layer lists every active
 
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
-| `mitre-validate.yml` | Pull request touching `mitre_input/` or the code | Validates every request: parses it, loads its dataset and resolves every threat actor. Problems are annotated on the request file. Nothing is committed. |
-| `mitre-generate.yml` | Push to `main` touching `mitre_input/` or the code, or manual run | Runs `mitre-navigator sync` and commits the result to `mitre_output/`. |
+| `mitre-layers.yml` | Pull request or push to `main` touching `mitre_input/` or the code, or manual run | Runs `mitre-navigator sync` and commits the layers to the branch being built. Problems are annotated on the request file. |
 | `tests.yml` | Changes to the code | Runs the test suite. |
+
+On a pull request the layers are committed to the PR branch, so you can review them and the merge already contains them. On `main` the same job acts as a safety net: it normally finds nothing to change and only commits when `main` drifted, for example after two PRs were merged back to back or after a direct push. Pull requests from forks are checked but not committed to, because the workflow token cannot push to forks.
 
 `sync` makes `mitre_output/` match `mitre_input/` on every run instead of tracking which files changed, so a request that failed earlier is picked up again as soon as it is fixed:
 
@@ -35,7 +36,7 @@ Layers show technique and tactic names without IDs. The layer lists every active
 
 STIX 2.1 data from [mitre-attack/attack-stix-data](https://github.com/mitre-attack/attack-stix-data) is downloaded, SHA-256 verified and queried with mitreattack-python, and layers are built with its `navlayers` module. Downloads are cached in the user cache directory (e.g. `~/.cache/mitre-navigator` on Linux) or in `$MITRE_NAVIGATOR_CACHE_DIR`, which CI persists between runs.
 
-The generate workflow pushes to `main` with `GITHUB_TOKEN`. If `main` is protected, allow GitHub Actions to bypass the rule, or the push will be rejected.
+The workflow pushes with `GITHUB_TOKEN`. Commits made with that token do not trigger workflows, so the generated-layers commit on a PR shows no checks of its own; if you add a branch rule that requires status checks, the merge will be blocked. If `main` is protected, also allow GitHub Actions to bypass the rule, or the safety-net push will be rejected.
 
 ## Local development
 

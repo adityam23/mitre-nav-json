@@ -1,0 +1,73 @@
+name: MITRE Navigator layers
+
+# Runs `mitre-navigator sync` and commits the layers to the branch being built:
+# - pull requests: the layers land on the PR branch, so the PR is merged with its generated layers;
+# - main: a safety net that only commits when main drifted (e.g. PRs merged back to back, direct pushes).
+# Code and dependency changes can change every layer (e.g. a new "latest" ATT&CK release), so they trigger it too.
+on:
+  pull_request:
+    paths: &inputs
+      - "mitre_input/**"
+      - "src/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/actions/setup/**"
+      - ".github/workflows/mitre-layers.yml"
+  push:
+    branches: [main]
+    paths: *inputs
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mitre-layers-${{ github.head_ref || github.ref }}
+  # A newer push to a PR supersedes the older run; runs on main always finish so nothing is skipped.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  BRANCH: ${{ github.head_ref || github.ref_name }}
+  # GITHUB_TOKEN cannot push to forks, so fork PRs are validated but never committed to.
+  CAN_PUSH: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the branch itself (not the PR merge commit) so the layers can be committed to it.
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ env.BRANCH }}
+
+      - uses: ./.github/actions/setup
+        with:
+          cache-stix: "true"
+
+      # Failed requests keep their last good layer; the job is failed after committing the rest.
+      - name: Sync layers with requests
+        id: sync
+        continue-on-error: true
+        run: uv run mitre-navigator sync
+
+      # Commits made with GITHUB_TOKEN do not trigger further workflow runs, so this cannot loop.
+      - name: Commit generated layers
+        if: env.CAN_PUSH == 'true'
+        run: |
+          git add mitre_output
+          if git diff --cached --quiet; then
+            echo "No layer changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Generate ATT&CK Navigator layers for $(git rev-parse --short HEAD)"
+          git pull --rebase origin "$BRANCH"
+          git push origin "HEAD:$BRANCH"
+
+      - name: Fail if any request failed
+        if: steps.sync.outcome == 'failure'
+        run: |
+          echo "::error::Some requests failed (see 'Sync layers with requests'); their previous layers were kept."
+          exit 1
