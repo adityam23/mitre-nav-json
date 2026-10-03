@@ -1,6 +1,6 @@
 # mitre_input/testfile-actor.yaml
 domain: ics-attack   # enterprise-attack | mobile-attack | ics-attack
-version: 13.1             # optional, default "latest"; or a quoted ATT&CK release such as "16.1"
+version: "13.1"             # optional, default "latest"; or a quoted ATT&CK release such as "16.1"
 threat_actors:              # optional
   - APT28  
   - "Fancy Bear"

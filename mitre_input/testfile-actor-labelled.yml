@@ -1,6 +1,6 @@
 # mitre_input/testfile-actor-labelled.yaml
 domain: mobile-attack   # enterprise-attack | mobile-attack | ics-attack
-version: 17.1             # optional, default "latest"; or a quoted ATT&CK release such as "16.1"
+version: "17.1"             # optional, default "latest"; or a quoted ATT&CK release such as "16.1"
 threat_actors:              # optional
   - APT28                   # name, alias (e.g. "Fancy Bear") or ATT&CK group ID (e.g. G0007), case-insensitive
 layer_name: APT28 coverage  # optional
