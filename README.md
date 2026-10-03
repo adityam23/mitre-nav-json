@@ -17,7 +17,7 @@ layer_name: APT28 coverage  # optional
 
 The output file is named after the request file, so `mitre_input/apt28.yaml` produces `mitre_output/apt28.json`. Load it in the Navigator via *Open Existing Layer → Upload from local*.
 
-Layers show technique and tactic names without IDs. The layer lists every active (non-revoked, non-deprecated) technique in the dataset. Techniques used by any listed actor, either directly or through a campaign attributed to that actor, get color `#ff0000`, a score of 1 and a comment naming the actors. This matches the "Techniques Used" table on attack.mitre.org group pages; techniques that come only from the actor's software are not highlighted.
+Layers show technique and tactic names without IDs. The layer lists every active (non-revoked, non-deprecated) technique in the dataset. Techniques used by any listed actor, either directly or through a campaign attributed to that actor, get color `#ff0000`, a comment naming the actors and a score equal to the number of listed actors that use the technique, so overlap can be sorted or filtered on in the Navigator. This matches the "Techniques Used" table on attack.mitre.org group pages; techniques that come only from the actor's software are not highlighted.
 
 ## Workflows
 

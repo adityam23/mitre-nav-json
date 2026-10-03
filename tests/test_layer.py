@@ -1,4 +1,7 @@
+from collections.abc import Callable
+
 from mitreattack.navlayers.core.versions import defaults as navlayers_defaults
+from mitreattack.stix20 import MitreAttackData
 
 from mitre_navigator.layer import ACTOR_TECHNIQUE_COLOR, build_layer
 from mitre_navigator.stix import AttackDataset
@@ -52,6 +55,20 @@ def test_custom_name_legend_and_metadata(dataset: AttackDataset) -> None:
     assert layer["name"] == "My layer"
     assert layer["legendItems"] == [{"label": "Used by APT28", "color": "#ff0000"}]
     assert layer["metadata"] == [{"name": "threat_actor", "value": "APT28 (G0007)"}]
+
+
+def test_score_counts_actors_using_the_technique(
+    add_relationship: Callable[[str, str, str], None], load_attack_data: Callable[[], MitreAttackData]
+) -> None:
+    add_relationship("uses", "G0016", "T1566.002")
+    dataset = AttackDataset(load_attack_data(), domain="enterprise-attack", attack_version="16.1")
+
+    techniques = _by_id(build_layer(dataset, [dataset.find_actor("APT28"), dataset.find_actor("APT29")]))
+
+    assert techniques["T1566.002"]["score"] == 2
+    assert techniques["T1566.002"]["comment"] == "Used by: APT28, APT29"
+    assert techniques["T1059.001"]["score"] == 1
+    assert "score" not in techniques["T1566"]
 
 
 def test_default_name_with_actors(dataset: AttackDataset) -> None:
