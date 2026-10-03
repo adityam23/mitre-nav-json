@@ -26,6 +26,21 @@ def test_generate_writes_layer(inputs: Path, tmp_path: Path, repository: Dataset
     assert red == ["T1059.001", "T1566.002"]
 
 
+def test_actor_listed_by_several_names_counts_once(
+    inputs: Path, tmp_path: Path, repository: DatasetRepository
+) -> None:
+    request = inputs / "apt28.yaml"
+    request.write_text("domain: enterprise-attack\nthreat_actors: [APT28, Fancy Bear, G0007]\n")
+    output_dir = tmp_path / "mitre_output"
+
+    assert main(["generate", str(request), "--output-dir", str(output_dir)], repository=repository) == 0
+
+    layer = json.loads((output_dir / "apt28.json").read_text())
+    scored = {t["techniqueID"]: (t["score"], t["comment"]) for t in layer["techniques"] if "score" in t}
+    assert scored == {"T1059.001": (1, "Used by: APT28"), "T1566.002": (1, "Used by: APT28")}
+    assert layer["metadata"] == [{"name": "threat_actor", "value": "APT28 (G0007)"}]
+
+
 def test_validate_does_not_write(
     inputs: Path, repository: DatasetRepository, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
 ) -> None:

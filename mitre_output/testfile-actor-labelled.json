@@ -601,7 +601,7 @@
       "techniqueID": "T1660",
       "comment": "Used by: APT-C-23, Sandworm Team",
       "enabled": true,
-      "score": 1,
+      "score": 2,
       "color": "#ff0000",
       "showSubtechniques": false
     },

@@ -26,7 +26,10 @@ def default_layer_name(dataset: AttackDataset, actors: Sequence[ThreatActor]) ->
 
 
 def build_layer(dataset: AttackDataset, actors: Sequence[ThreatActor], *, name: str | None = None) -> Layer:
-    """List every technique in the dataset; techniques used by any of ``actors`` are colored red."""
+    """List every technique in the dataset; techniques used by any of ``actors`` are colored red.
+
+    A highlighted technique's score is the number of ``actors`` that use it, so overlap can be sorted on.
+    """
     users_by_technique: dict[str, list[str]] = {}
     parents_with_highlighted_subs: set[str] = set()
     for actor in actors:
@@ -43,7 +46,7 @@ def build_layer(dataset: AttackDataset, actors: Sequence[ThreatActor], *, name: 
             "showSubtechniques": technique.attack_id in parents_with_highlighted_subs,
         }
         if users := users_by_technique.get(technique.attack_id):
-            entry.update(score=1, color=ACTOR_TECHNIQUE_COLOR, comment=f"Used by: {', '.join(users)}")
+            entry.update(score=len(users), color=ACTOR_TECHNIQUE_COLOR, comment=f"Used by: {', '.join(users)}")
         techniques.append(entry)
 
     legend_items = []

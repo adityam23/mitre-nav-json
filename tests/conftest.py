@@ -99,6 +99,16 @@ def stix_objects() -> list[dict[str, Any]]:
 
 
 @pytest.fixture
+def add_relationship(stix_objects: list[dict[str, Any]]) -> Callable[[str, str, str], None]:
+    """Append a relationship between two objects given by ATT&CK ID, e.g. ``("uses", "G0016", "T1566")``."""
+
+    def stix_id(attack_id: str) -> str:
+        return next(obj["id"] for obj in stix_objects if obj.get("external_references") == _ref(attack_id))
+
+    return lambda kind, source, target: stix_objects.append(_rel(kind, stix_id(source), stix_id(target)))
+
+
+@pytest.fixture
 def load_attack_data(stix_objects: list[dict[str, Any]]) -> Callable[[], MitreAttackData]:
     return lambda: MitreAttackData(src=MemoryStore(stix_data=stix_objects, allow_custom=True))
 

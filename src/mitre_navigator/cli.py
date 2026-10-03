@@ -29,7 +29,8 @@ def resolve(path: Path, repository: DatasetRepository) -> ResolvedRequest:
     """Parse a request file, load its dataset and resolve every threat actor it names."""
     request = load_request(path)
     dataset = repository.get(request.domain, request.version)
-    actors = tuple(dataset.find_actor(ref) for ref in request.threat_actors)
+    # dict.fromkeys de-duplicates while keeping order: "APT28" and "Fancy Bear" are the same actor.
+    actors = tuple(dict.fromkeys(dataset.find_actor(ref) for ref in request.threat_actors))
     return ResolvedRequest(request=request, dataset=dataset, actors=actors)
 
 
