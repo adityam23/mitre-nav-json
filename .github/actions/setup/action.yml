@@ -4,7 +4,7 @@ description: Install uv, the pinned Python version and the locked project depend
 runs:
   using: composite
   steps:
-    - uses: astral-sh/setup-uv@v10
+    - uses: astral-sh/setup-uv@v10.0.0
       with:
         enable-cache: true
 
