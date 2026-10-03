@@ -1,0 +1,13 @@
+name: Set up mitre-navigator
+description: Install uv, the pinned Python version and the locked project dependencies.
+
+runs:
+  using: composite
+  steps:
+    - uses: astral-sh/setup-uv@v10
+      with:
+        enable-cache: true
+
+    - name: Install project
+      shell: bash
+      run: uv sync --locked

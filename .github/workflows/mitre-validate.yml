@@ -1,0 +1,23 @@
+name: Validate MITRE requests
+
+on:
+  pull_request:
+    paths:
+      - "mitre_input/**"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      - uses: ./.github/actions/setup
+
+      # HEAD is the PR merge commit, so HEAD^1 is the base branch it merges into.
+      - name: Validate changed request files
+        run: .github/scripts/for-changed-inputs.sh HEAD^1 HEAD uv run mitre-navigator validate

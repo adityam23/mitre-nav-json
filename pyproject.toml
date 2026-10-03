@@ -1,0 +1,26 @@
+[project]
+name = "mitre-navigator"
+version = "0.1.0"
+description = "Convert MITRE ATT&CK STIX datasets into ATT&CK Navigator layers, highlighting threat actor techniques."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mitreattack-python>=6.2.1",
+    "pooch>=1.9.0",
+    "pyyaml>=6.0.3",
+]
+
+[project.scripts]
+mitre-navigator = "mitre_navigator.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

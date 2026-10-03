@@ -1,0 +1,46 @@
+name: Generate MITRE Navigator layers
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "mitre_input/**"
+  # Manual runs regenerate every layer, e.g. after bumping mitreattack-python to a new "latest" ATT&CK release.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mitre-generate
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      - name: Generate layers for changed request files
+        env:
+          # Empty for workflow_dispatch, which makes the script select every request file.
+          BASE_SHA: ${{ github.event.before }}
+        run: .github/scripts/for-changed-inputs.sh "$BASE_SHA" HEAD uv run mitre-navigator generate --output-dir mitre_output
+
+      # Commits made with GITHUB_TOKEN do not trigger further workflow runs, so this cannot loop.
+      - name: Commit generated layers
+        run: |
+          git add mitre_output
+          if git diff --cached --quiet; then
+            echo "No layer changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Generate ATT&CK Navigator layers for ${GITHUB_SHA::7}"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
