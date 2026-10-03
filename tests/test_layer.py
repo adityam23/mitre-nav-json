@@ -19,6 +19,7 @@ def test_layer_without_actor_lists_all_techniques_uncolored(dataset: AttackDatas
         "layer": navlayers_defaults["layer"],
     }
     assert "legendItems" not in layer
+    assert layer["layout"]["showID"] is False
     assert sorted(_by_id(layer)) == ["T1059", "T1059.001", "T1566", "T1566.002"]
     assert all("color" not in t for t in layer["techniques"])
 

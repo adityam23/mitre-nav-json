@@ -3,9 +3,14 @@ name: Generate MITRE Navigator layers
 on:
   push:
     branches: [main]
+    # Code and dependency changes can change every layer (e.g. a new "latest" ATT&CK release).
     paths:
       - "mitre_input/**"
-  # Manual runs regenerate every layer, e.g. after bumping mitreattack-python to a new "latest" ATT&CK release.
+      - "src/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/actions/setup/**"
+      - ".github/workflows/mitre-generate.yml"
   workflow_dispatch:
 
 permissions:
@@ -20,16 +25,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
 
       - uses: ./.github/actions/setup
+        with:
+          cache-stix: "true"
 
-      - name: Generate layers for changed request files
-        env:
-          # Empty for workflow_dispatch, which makes the script select every request file.
-          BASE_SHA: ${{ github.event.before }}
-        run: .github/scripts/for-changed-inputs.sh "$BASE_SHA" HEAD uv run mitre-navigator generate --output-dir mitre_output
+      # Rebuilds every request so mitre_output/ always matches mitre_input/, including requests that failed
+      # in earlier runs. Failed requests keep their last good layer; the job is failed after committing.
+      - name: Sync layers with requests
+        id: sync
+        continue-on-error: true
+        run: uv run mitre-navigator sync
 
       # Commits made with GITHUB_TOKEN do not trigger further workflow runs, so this cannot loop.
       - name: Commit generated layers
@@ -44,3 +50,9 @@ jobs:
           git commit -m "Generate ATT&CK Navigator layers for ${GITHUB_SHA::7}"
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Fail if any request failed
+        if: steps.sync.outcome == 'failure'
+        run: |
+          echo "::error::Some requests failed (see 'Sync layers with requests'); their previous layers were kept."
+          exit 1

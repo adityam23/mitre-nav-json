@@ -11,6 +11,8 @@ import yaml
 from . import releases
 
 _ALLOWED_KEYS = frozenset({"domain", "version", "threat_actors", "layer_name"})
+_REQUEST_SUFFIXES = (".yaml", ".yml")
+_LAYER_SUFFIX = ".json"
 
 
 class ConfigError(ValueError):
@@ -34,7 +36,22 @@ class LayerRequest:
 
 def output_filename_for(source: Path) -> str:
     """Name of the Navigator layer generated from ``source`` (e.g. apt28.yaml -> apt28.json)."""
-    return f"{source.stem}.json"
+    return f"{source.stem}{_LAYER_SUFFIX}"
+
+
+def find_requests(input_dir: Path) -> list[Path]:
+    """Every request file in ``input_dir``, sorted by name."""
+    # A missing directory is an error rather than "no requests", so sync never prunes every layer by mistake.
+    if not input_dir.is_dir():
+        raise ConfigError(f"request directory {input_dir} does not exist")
+    return sorted(path for path in input_dir.iterdir() if path.is_file() and path.suffix in _REQUEST_SUFFIXES)
+
+
+def find_layers(output_dir: Path) -> list[Path]:
+    """Every generated layer file in ``output_dir``, sorted by name."""
+    if not output_dir.is_dir():
+        return []
+    return sorted(path for path in output_dir.iterdir() if path.is_file() and path.suffix == _LAYER_SUFFIX)
 
 
 def load_request(path: Path) -> LayerRequest:
