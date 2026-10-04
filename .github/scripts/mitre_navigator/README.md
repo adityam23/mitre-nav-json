@@ -17,7 +17,15 @@ uv run --locked --script .github/scripts/mitre_navigator/main.py generate mitre_
 uv run --locked --script .github/scripts/mitre_navigator/main.py sync                           # what CI runs
 ```
 
-Tests are not run in CI, so run them before pushing. From this directory:
+Tests are not run in CI, so run them before pushing.
+
+From the repository root:
+
+```sh
+uv run --no-project --with pytest --with-requirements <(uv export --script .github/scripts/mitre_navigator/main.py --locked) pytest .github/scripts/mitre_navigator
+```
+
+From `.github/scripts/mitre_navigator/`:
 
 ```sh
 uv run --no-project --with pytest --with-requirements <(uv export --script main.py --locked) pytest
@@ -27,9 +35,16 @@ The tests use the locked dependencies through `uv export`; `--with-requirements 
 
 ## Updating dependencies
 
-Edit the `dependencies` list at the top of `main.py` if needed, then refresh the lockfile:
+To pick up a new ATT&CK release, upgrade mitreattack-python. This updates `main.py.lock` to the newest version on PyPI; `main.py` does not need editing. Commit the new lockfile in a pull request; CI then regenerates every `version: latest` layer against the new release.
 
 ```sh
-uv lock --script main.py                                        # after editing the dependency list
-uv lock --script main.py --upgrade-package mitreattack-python   # pick up a new ATT&CK release
+uv lock --script .github/scripts/mitre_navigator/main.py --upgrade-package mitreattack-python   # from the repository root
+uv lock --script main.py --upgrade-package mitreattack-python                                   # from .github/scripts/mitre_navigator/
+```
+
+To add, remove or change a dependency, edit the `dependencies` list at the top of `main.py`, then refresh the lockfile:
+
+```sh
+uv lock --script .github/scripts/mitre_navigator/main.py   # from the repository root
+uv lock --script main.py                                   # from .github/scripts/mitre_navigator/
 ```
