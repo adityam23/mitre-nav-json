@@ -23,7 +23,7 @@ Layers show technique and tactic names without IDs. The layer lists every active
 
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
-| `mitre-layers.yml` | Pull request or push to `main` touching `mitre_input/` or the converter (not its tests or docs), or manual run | Runs the converter's `sync` command and commits the layers to the branch being built. Problems are annotated on the request file. |
+| `mitre-layers.yml` | Pull request or push to `main` touching `mitre_input/` or the converter, or manual run | Runs the converter's `sync` command and commits the layers to the branch being built. Problems are annotated on the request file. |
 
 On a pull request the layers are committed to the PR branch, so you can review them and the merge already contains them. On `main` the same job acts as a safety net: it normally finds nothing to change and only commits when `main` drifted, for example after two PRs were merged back to back or after a direct push. Pull requests from forks are checked but not committed to, because the workflow token cannot push to forks.
 

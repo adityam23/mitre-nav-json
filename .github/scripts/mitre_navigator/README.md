@@ -17,7 +17,7 @@ uv run --locked --script .github/scripts/mitre_navigator/main.py generate mitre_
 uv run --locked --script .github/scripts/mitre_navigator/main.py sync                           # what CI runs
 ```
 
-Tests are not run in CI, and changes to them or to this README do not trigger the layers workflow, so run them before pushing. From this directory:
+Tests are not run in CI, so run them before pushing. From this directory:
 
 ```sh
 uv run --no-project --with pytest --with-requirements <(uv export --script main.py --locked) pytest
