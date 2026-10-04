@@ -1,6 +1,6 @@
 name: MITRE Navigator layers
 
-# Runs `mitre-navigator sync` and commits the layers to the branch being built:
+# Runs the converter's `sync` command and commits the layers to the branch being built:
 # - pull requests: the layers land on the PR branch, so the PR is merged with its generated layers;
 # - main: a safety net that only commits when main drifted (e.g. PRs merged back to back, direct pushes).
 # Code and dependency changes can change every layer (e.g. a new "latest" ATT&CK release), so they trigger it too.
@@ -10,6 +10,10 @@ on:
       - "mitre_input/**"
       - ".github/scripts/mitre_navigator/**"
       - ".github/workflows/mitre-layers.yml"
+      # Tests and docs cannot change the generated layers.
+      - "!.github/scripts/mitre_navigator/tests/**"
+      - "!.github/scripts/mitre_navigator/pytest.ini"
+      - "!.github/scripts/mitre_navigator/README.md"
   push:
     branches: [main]
     paths: *inputs
