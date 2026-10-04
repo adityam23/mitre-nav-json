@@ -1,3 +1,3 @@
-# mitre_input/testfile.yaml
+# mitre_input/example.yml
 domain: enterprise-attack   # enterprise-attack | mobile-attack | ics-attack
 version: latest             # optional, default "latest"; or a quoted ATT&CK release such as "16.1"
