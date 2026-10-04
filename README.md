@@ -13,7 +13,7 @@ threat_actors:              # optional
 layer_name: APT28 coverage  # optional
 ```
 
-`latest` means the newest ATT&CK release known to the installed [mitreattack-python](https://github.com/mitre-attack/mitreattack-python) (`release_info.LATEST_VERSION`), so picking up a new ATT&CK release means bumping that dependency in `uv.lock`. Domains and pinned versions are validated against the same release list.
+`latest` means the newest ATT&CK release known to the installed [mitreattack-python](https://github.com/mitre-attack/mitreattack-python) (`release_info.LATEST_VERSION`), so picking up a new ATT&CK release means bumping that dependency (see the [converter README](.github/scripts/mitre_navigator/README.md)). Domains and pinned versions are validated against the same release list.
 
 The output file is named after the request file, so `mitre_input/apt28.yaml` produces `mitre_output/apt28.json`. Load it in the Navigator via *Open Existing Layer → Upload from local*.
 
@@ -23,8 +23,7 @@ Layers show technique and tactic names without IDs. The layer lists every active
 
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
-| `mitre-layers.yml` | Pull request or push to `main` touching `mitre_input/` or the code, or manual run | Runs `mitre-navigator sync` and commits the layers to the branch being built. Problems are annotated on the request file. |
-| `tests.yml` | Changes to the code | Runs the test suite. |
+| `mitre-layers.yml` | Pull request or push to `main` touching `mitre_input/` or the converter, or manual run | Runs the converter's `sync` command and commits the layers to the branch being built. Problems are annotated on the request file. |
 
 On a pull request the layers are committed to the PR branch, so you can review them and the merge already contains them. On `main` the same job acts as a safety net: it normally finds nothing to change and only commits when `main` drifted, for example after two PRs were merged back to back or after a direct push. Pull requests from forks are checked but not committed to, because the workflow token cannot push to forks.
 
@@ -34,17 +33,6 @@ On a pull request the layers are committed to the PR branch, so you can review t
 - A request that fails keeps its last good layer. The other requests are still generated and committed, and the run is marked failed afterwards.
 - Layers whose request file was deleted or renamed are removed. `mitre_output/` is owned by the workflow, so do not put hand-made layers there.
 
-STIX 2.1 data from [mitre-attack/attack-stix-data](https://github.com/mitre-attack/attack-stix-data) is downloaded, SHA-256 verified and queried with mitreattack-python, and layers are built with its `navlayers` module. Downloads are cached in the user cache directory (e.g. `~/.cache/mitre-navigator` on Linux) or in `$MITRE_NAVIGATOR_CACHE_DIR`, which CI persists between runs.
-
 The workflow pushes with `GITHUB_TOKEN`. Commits made with that token do not trigger workflows, so the generated-layers commit on a PR shows no checks of its own; if you add a branch rule that requires status checks, the merge will be blocked. If `main` is protected, also allow GitHub Actions to bypass the rule, or the safety-net push will be rejected.
 
-## Local development
-
-```sh
-uv sync
-uv run pytest
-uv run mitre-navigator validate                       # every request in mitre_input/
-uv run mitre-navigator validate mitre_input/apt28.yaml
-uv run mitre-navigator generate mitre_input/apt28.yaml --output-dir mitre_output
-uv run mitre-navigator sync                           # what CI runs on main
-```
+The converter lives in `.github/scripts/mitre_navigator/`; see its [README](.github/scripts/mitre_navigator/README.md) for running it locally.
