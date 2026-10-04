@@ -27,9 +27,14 @@ The tests use the locked dependencies through `uv export`; `--with-requirements 
 
 ## Updating dependencies
 
-Edit the `dependencies` list at the top of `main.py` if needed, then refresh the lockfile:
+To pick up a new ATT&CK release, upgrade mitreattack-python. This updates `main.py.lock` to the newest version on PyPI; `main.py` does not need editing. Commit the new lockfile in a pull request; CI then regenerates every `version: latest` layer against the new release.
 
 ```sh
-uv lock --script main.py                                        # after editing the dependency list
-uv lock --script main.py --upgrade-package mitreattack-python   # pick up a new ATT&CK release
+uv lock --script main.py --upgrade-package mitreattack-python
+```
+
+To add, remove or change a dependency, edit the `dependencies` list at the top of `main.py`, then refresh the lockfile:
+
+```sh
+uv lock --script main.py
 ```
