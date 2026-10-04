@@ -8,10 +8,7 @@ on:
   pull_request:
     paths: &inputs
       - "mitre_input/**"
-      - "src/**"
-      - "pyproject.toml"
-      - "uv.lock"
-      - ".github/actions/setup/**"
+      - ".github/scripts/mitre_navigator/**"
       - ".github/workflows/mitre-layers.yml"
   push:
     branches: [main]
@@ -27,6 +24,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
+  SCRIPT: .github/scripts/mitre_navigator/main.py
   BRANCH: ${{ github.head_ref || github.ref_name }}
   # GITHUB_TOKEN cannot push to forks, so fork PRs are validated but never committed to.
   CAN_PUSH: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
@@ -41,15 +39,27 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ env.BRANCH }}
 
-      - uses: ./.github/actions/setup
+      - uses: astral-sh/setup-uv@v10.0.0
         with:
-          cache-stix: "true"
+          enable-cache: true
+          cache-dependency-glob: ${{ env.SCRIPT }}.lock
+
+      # Bundles are immutable and hash-verified per release, so a stale cache is only ever missing files.
+      - name: Restore STIX cache
+        uses: actions/cache@v6
+        with:
+          path: ${{ runner.temp }}/mitre-stix
+          # Cache entries are immutable, so key on the requests too: a newly requested release is then saved.
+          key: mitre-stix-${{ hashFiles('.github/scripts/mitre_navigator/main.py.lock', 'mitre_input/**') }}
+          restore-keys: mitre-stix-
 
       # Failed requests keep their last good layer; the job is failed after committing the rest.
       - name: Sync layers with requests
         id: sync
         continue-on-error: true
-        run: uv run mitre-navigator sync
+        env:
+          MITRE_NAVIGATOR_CACHE_DIR: ${{ runner.temp }}/mitre-stix
+        run: uv run --locked --script "$SCRIPT" sync
 
       # Commits made with GITHUB_TOKEN do not trigger further workflow runs, so this cannot loop.
       - name: Commit generated layers
