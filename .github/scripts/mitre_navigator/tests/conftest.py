@@ -8,7 +8,7 @@ import pytest
 from mitreattack.stix20 import MitreAttackData
 from stix2 import MemoryStore
 
-from mitre_navigator.stix import AttackDataset, DatasetRepository
+from stix import AttackDataset, DatasetRepository
 
 _TIMESTAMP = "2024-01-01T00:00:00.000Z"
 

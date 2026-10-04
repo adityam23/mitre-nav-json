@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from mitre_navigator.cli import main
-from mitre_navigator.stix import DatasetRepository
+from main import main
+from stix import DatasetRepository
 
 
 @pytest.fixture

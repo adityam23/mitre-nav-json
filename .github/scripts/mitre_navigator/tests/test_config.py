@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from mitre_navigator.config import ConfigError, LayerRequest, load_request, parse_request
+from config import ConfigError, LayerRequest, load_request, parse_request
 
 SOURCE = Path("mitre_input/apt28.yaml")
 

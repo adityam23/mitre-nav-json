@@ -1,3 +1,11 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "mitreattack-python>=6.2.1",
+#     "pooch>=1.9.0",
+#     "pyyaml>=6.0.3",
+# ]
+# ///
 """Command line entry point: ``mitre-navigator {validate,generate,sync}``."""
 
 from __future__ import annotations
@@ -10,9 +18,9 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from .config import ConfigError, LayerRequest, find_layers, find_requests, load_request, output_filename_for
-from .layer import LayerBuildError, build_layer
-from .stix import ActorLookupError, AttackDataset, DatasetError, DatasetRepository, ThreatActor
+from config import ConfigError, LayerRequest, find_layers, find_requests, load_request, output_filename_for
+from layer import LayerBuildError, build_layer
+from stix import ActorLookupError, AttackDataset, DatasetError, DatasetRepository, ThreatActor
 
 DEFAULT_INPUT_DIR = Path("mitre_input")
 DEFAULT_OUTPUT_DIR = Path("mitre_output")

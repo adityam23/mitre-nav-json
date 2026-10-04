@@ -5,7 +5,7 @@ import pytest
 from mitreattack import release_info
 from mitreattack.stix20 import MitreAttackData
 
-from mitre_navigator.stix import ActorLookupError, AttackDataset, DatasetError, DatasetRepository, download_dataset
+from stix import ActorLookupError, AttackDataset, DatasetError, DatasetRepository, download_dataset
 
 
 def test_excludes_revoked_and_deprecated_objects(dataset: AttackDataset) -> None:
@@ -66,7 +66,7 @@ def test_download_failure_is_a_dataset_error(monkeypatch: pytest.MonkeyPatch, tm
     def fail(**kwargs: object) -> None:
         raise ValueError("SHA256 hash of downloaded file does not match the known hash")
 
-    monkeypatch.setattr("mitre_navigator.stix.download_stix", fail)
+    monkeypatch.setattr("stix.download_stix", fail)
 
     with pytest.raises(DatasetError, match="failed to download ATT&CK ics-attack v15.1: SHA256"):
         download_dataset("ics-attack", "15.1", cache_dir=tmp_path)

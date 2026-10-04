@@ -8,7 +8,7 @@ from typing import Any
 from mitreattack.navlayers import Layer as NavigatorLayer
 from mitreattack.navlayers.core.versions import Versions
 
-from .stix import AttackDataset, ThreatActor
+from stix import AttackDataset, ThreatActor
 
 ACTOR_TECHNIQUE_COLOR = "#ff0000"
 

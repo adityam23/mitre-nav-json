@@ -3,8 +3,8 @@ from collections.abc import Callable
 from mitreattack.navlayers.core.versions import defaults as navlayers_defaults
 from mitreattack.stix20 import MitreAttackData
 
-from mitre_navigator.layer import ACTOR_TECHNIQUE_COLOR, build_layer
-from mitre_navigator.stix import AttackDataset
+from layer import ACTOR_TECHNIQUE_COLOR, build_layer
+from stix import AttackDataset
 
 
 def _by_id(layer: dict) -> dict[str, dict]:

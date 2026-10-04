@@ -8,7 +8,7 @@ from typing import Any
 
 import yaml
 
-from . import releases
+import releases
 
 _ALLOWED_KEYS = frozenset({"domain", "version", "threat_actors", "layer_name"})
 _REQUEST_SUFFIXES = (".yaml", ".yml")

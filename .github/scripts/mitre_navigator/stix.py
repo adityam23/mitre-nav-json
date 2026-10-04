@@ -12,7 +12,7 @@ import pooch
 from mitreattack.download_stix import download_stix
 from mitreattack.stix20 import MitreAttackData
 
-from . import releases
+import releases
 
 # CI points MITRE_NAVIGATOR_CACHE_DIR at a directory it persists between runs.
 DEFAULT_CACHE_DIR = Path(os.environ.get("MITRE_NAVIGATOR_CACHE_DIR") or pooch.os_cache("mitre-navigator"))
