@@ -1,4 +1,4 @@
-# mitre_input/testfile-actor-labelled.yaml
+# mitre_input/example-actor-labelled.yml
 domain: mobile-attack   # enterprise-attack | mobile-attack | ics-attack
 version: "17.1"             # optional, default "latest"; or a quoted ATT&CK release such as "16.1"
 threat_actors:              # optional
