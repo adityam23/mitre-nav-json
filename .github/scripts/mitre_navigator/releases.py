@@ -15,13 +15,11 @@ def domain_name(domain: str) -> str:
     return _DOMAIN_NAMES[domain]
 
 
-def is_known(domain: str, version: str) -> bool:
-    return version == LATEST or version in release_info.STIX21[domain_name(domain)]
-
-
-def resolve(version: str) -> str:
-    """Turn ``latest`` into the concrete newest release; other versions are returned unchanged."""
-    return release_info.LATEST_VERSION if version == LATEST else version
+def resolve(domain: str, version: str) -> str | None:
+    """The concrete release ``version`` names (``latest`` is the newest), or None if ``domain`` has no such release."""
+    if version == LATEST:
+        return release_info.LATEST_VERSION
+    return version if version in release_info.STIX21[domain_name(domain)] else None
 
 
 def known_hash(domain: str, release: str) -> str:
