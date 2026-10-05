@@ -22,15 +22,20 @@ def resolve(domain: str, version: str) -> str | None:
     """The concrete release ``version`` names (``latest`` is the newest), or None if ``domain`` has no such release."""
     if version == LATEST:
         return LATEST_VERSION
-    return version if version in release_info.STIX21[domain_name(domain)] else None
+    return version if version in _known(domain) else None
 
 
 def unknown(domain: str, versions: Iterable[str]) -> tuple[str, ...]:
     """The ``versions`` of ``domain`` that the installed library has no release for."""
-    known = release_info.STIX21[domain_name(domain)]
+    known = _known(domain)
     return tuple(version for version in versions if version not in known)
 
 
 def known_hash(domain: str, release: str) -> str:
     """SHA-256 of the official STIX bundle for ``release``, used to verify downloads."""
-    return release_info.STIX21[domain_name(domain)][release]
+    return _known(domain)[release]
+
+
+def _known(domain: str) -> dict[str, str]:
+    """The library's releases of ``domain``, mapped to their bundle hashes."""
+    return release_info.STIX21[domain_name(domain)]

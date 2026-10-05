@@ -1,6 +1,7 @@
 import json
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from pathlib import Path
+from typing import Protocol
 
 import pytest
 
@@ -9,7 +10,9 @@ import upstream
 from main import main
 from stix import DatasetRepository
 
-Run = Callable[[Sequence[str]], int]
+
+class Run(Protocol):
+    def __call__(self, argv: Sequence[str], *, published_releases: upstream.ReleaseFetcher | None = None) -> int: ...
 
 
 @pytest.fixture
@@ -27,8 +30,12 @@ def published() -> dict[str, tuple[str, ...]]:
 
 @pytest.fixture
 def run(repository: DatasetRepository, published: dict[str, tuple[str, ...]]) -> Run:
-    """``main`` against the test dataset and release index, so no test reaches the network."""
-    return lambda argv: main(argv, repository=repository, published_releases=lambda: published)
+    """``main`` against the test dataset and release index (or a given fetcher), so no test reaches the network."""
+
+    def run(argv: Sequence[str], *, published_releases: upstream.ReleaseFetcher | None = None) -> int:
+        return main(argv, repository=repository, published_releases=published_releases or (lambda: published))
+
+    return run
 
 
 def test_generate_writes_layer(inputs: Path, tmp_path: Path, run: Run) -> None:
@@ -219,24 +226,22 @@ def test_warns_when_library_lacks_a_published_release(
     assert "--upgrade-package mitreattack-python" in captured.err
 
 
-def test_pinned_versions_skip_the_release_check(inputs: Path, repository: DatasetRepository) -> None:
-    def fail() -> None:
+def test_pinned_versions_skip_the_release_check(inputs: Path, run: Run) -> None:
+    def fail() -> dict[str, tuple[str, ...]]:
         raise AssertionError("the release index should not be fetched")
 
     (inputs / "pinned.yaml").write_text('domain: enterprise-attack\nversion: "16.1"\n')
 
-    assert main(["validate", "--input-dir", str(inputs)], repository=repository, published_releases=fail) == 0
+    assert run(["validate", "--input-dir", str(inputs)], published_releases=fail) == 0
 
 
-def test_unreachable_release_index_is_only_a_notice(
-    inputs: Path, repository: DatasetRepository, capsys: pytest.CaptureFixture[str]
-) -> None:
-    def unreachable() -> None:
+def test_unreachable_release_index_is_only_a_notice(inputs: Path, run: Run, capsys: pytest.CaptureFixture[str]) -> None:
+    def unreachable() -> dict[str, tuple[str, ...]]:
         raise upstream.ReleaseIndexError("cannot read index.json: offline")
 
     (inputs / "latest.yaml").write_text("domain: enterprise-attack\n")
 
-    assert main(["validate", "--input-dir", str(inputs)], repository=repository, published_releases=unreachable) == 0
+    assert run(["validate", "--input-dir", str(inputs)], published_releases=unreachable) == 0
 
     notice = "notice: could not check for newer ATT&CK releases: cannot read index.json: offline"
     assert notice in capsys.readouterr().err
@@ -264,4 +269,5 @@ def test_domain_missing_from_release_index_is_a_notice(
 
     assert run(["validate", "--input-dir", str(inputs)]) == 0
 
-    assert "notice: could not check for newer enterprise-attack releases" in capsys.readouterr().err
+    notice = f"notice: could not check for newer enterprise-attack releases: {upstream.INDEX_URL} lists none"
+    assert notice in capsys.readouterr().err
