@@ -5,6 +5,7 @@ import os
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import pooch
 from mitreattack.download_stix import download_stix
@@ -17,6 +18,9 @@ from errors import RequestError
 DEFAULT_CACHE_DIR = Path(os.environ.get("MITRE_NAVIGATOR_CACHE_DIR") or pooch.os_cache("mitre-navigator"))
 
 DatasetLoader = Callable[[str, str], MitreAttackData]
+
+# Before ATT&CK v12, mobile and ICS IDs were labelled with their own source name instead of "mitre-attack".
+_ATTACK_ID_SOURCES = frozenset({"mitre-attack", "mitre-mobile-attack", "mitre-ics-attack"})
 
 
 class DatasetError(RequestError):
@@ -68,8 +72,12 @@ def download_dataset(domain: str, release: str, *, cache_dir: Path = DEFAULT_CAC
         )
     except (OSError, ValueError) as exc:
         raise DatasetError(f"failed to download ATT&CK {domain} v{release}: {exc}") from exc
-    # Same layout download_stix writes to.
-    return MitreAttackData(stix_filepath=str(cache_dir / f"v{release}" / f"{domain}.json"))
+    try:
+        # Same layout download_stix writes to.
+        return MitreAttackData(stix_filepath=str(cache_dir / f"v{release}" / f"{domain}.json"))
+    except ValueError as exc:
+        # Some official bundles break STIX rules (e.g. enterprise 16.0 has a campaign last seen before first seen).
+        raise DatasetError(f"MITRE's ATT&CK {domain} v{release} bundle is invalid STIX: {exc}") from exc
 
 
 class AttackDataset:
@@ -82,7 +90,7 @@ class AttackDataset:
 
         self.techniques = sorted(
             (
-                Technique(stix_id=obj.id, attack_id=data.get_attack_id(obj.id), name=obj.name)
+                Technique(stix_id=obj.id, attack_id=_attack_id(obj), name=obj.name)
                 for obj in data.get_techniques(remove_revoked_deprecated=True)
             ),
             key=lambda t: t.attack_id,
@@ -91,7 +99,7 @@ class AttackDataset:
             (
                 ThreatActor(
                     stix_id=obj.id,
-                    attack_id=data.get_attack_id(obj.id),
+                    attack_id=_attack_id(obj),
                     name=obj.name,
                     aliases=tuple(obj.get("aliases", ())),
                 )
@@ -139,3 +147,11 @@ class DatasetRepository:
         if key not in self._cache:
             self._cache[key] = AttackDataset(self._load(domain, release), domain=domain, attack_version=release)
         return self._cache[key]
+
+
+def _attack_id(obj: Any) -> str | None:
+    """The object's ATT&CK ID, read like ``MitreAttackData.get_attack_id`` but also from pre-v12 mobile/ICS bundles."""
+    references = obj.get("external_references", ())
+    if references and references[0].get("source_name") in _ATTACK_ID_SOURCES:
+        return references[0].get("external_id")
+    return None
