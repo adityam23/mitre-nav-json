@@ -40,15 +40,6 @@ def parse_index(index: Any) -> dict[str, tuple[str, ...]]:
         raise ReleaseIndexError(f"unexpected layout of {INDEX_URL}: {exc!r}") from exc
 
 
-
-def releases_for(published: Mapping[str, tuple[str, ...]], domain: str) -> tuple[str, ...]:
-    """The published releases of ``domain``; an index without any is treated as unreadable, not as "none newer"."""
-    try:
-        return published[domain]
-    except KeyError:
-        raise ReleaseIndexError(f"{INDEX_URL} lists no {domain} releases") from None
-
-
 def _domain(collection: Mapping[str, Any]) -> str:
     # Bundles live under a directory named after their domain: .../enterprise-attack/enterprise-attack-19.2.json
     return PurePosixPath(urlparse(_text(collection["versions"][0]["url"])).path).parent.name

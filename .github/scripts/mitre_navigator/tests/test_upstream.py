@@ -41,8 +41,3 @@ def test_dropped_connection_is_a_release_index_error(monkeypatch: pytest.MonkeyP
 
     with pytest.raises(ReleaseIndexError, match="cannot read"):
         upstream.published_releases()
-
-
-def test_releases_for_a_domain_missing_from_the_index_is_an_error() -> None:
-    with pytest.raises(ReleaseIndexError, match="lists no enterprise-attack releases"):
-        upstream.releases_for({"ics-attack": ("19.2",)}, "enterprise-attack")

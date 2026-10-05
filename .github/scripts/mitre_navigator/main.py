@@ -155,10 +155,9 @@ def _warn_if_library_outdated(domains: Sequence[str], published_releases: upstre
         _report("notice", f"could not check for newer ATT&CK releases: {exc}")
         return
     for domain in domains:
-        try:
-            versions = upstream.releases_for(published, domain)
-        except upstream.ReleaseIndexError as exc:
-            _report("notice", f"could not check for newer {domain} releases: {exc}")
+        # An index without the domain is treated as unreadable, not as "none newer".
+        if not (versions := published.get(domain)):
+            _report("notice", f"could not check for newer {domain} releases: {upstream.INDEX_URL} lists none")
             continue
         if unknown := releases.unknown(domain, versions):
             upgrade = f"uv lock --script {os.path.relpath(__file__)} --upgrade-package mitreattack-python"
