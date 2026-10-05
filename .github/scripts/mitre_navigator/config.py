@@ -92,12 +92,13 @@ def _parse_version(value: Any, domain: str) -> str:
     if not isinstance(value, str):
         raise ConfigError(f"'version' must be a quoted string such as \"16.1\" or \"latest\"; got {value!r}")
     value = value.strip()
-    if not releases.is_known(domain, value):
+    release = releases.resolve(domain, value)
+    if release is None:
         raise ConfigError(
             f"'version' {value!r} is not a known {domain} release; "
-            f"use \"latest\" ({releases.resolve(releases.LATEST)}) or an ATT&CK release such as \"16.1\""
+            f"use \"latest\" ({releases.resolve(domain, releases.LATEST)}) or an ATT&CK release such as \"16.1\""
         )
-    return releases.resolve(value)
+    return release
 
 
 def _parse_threat_actors(value: Any) -> tuple[str, ...]:

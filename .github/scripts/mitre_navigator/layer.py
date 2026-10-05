@@ -34,8 +34,8 @@ def build_layer(dataset: AttackDataset, actors: Sequence[ThreatActor], *, name: 
     for actor in actors:
         for technique in dataset.techniques_used_by(actor):
             users_by_technique.setdefault(technique.attack_id, []).append(actor.name)
-            if technique.is_subtechnique:
-                parents_with_highlighted_subs.add(technique.parent_attack_id)
+            if parent := technique.parent_attack_id:
+                parents_with_highlighted_subs.add(parent)
 
     techniques = []
     for technique in dataset.techniques:

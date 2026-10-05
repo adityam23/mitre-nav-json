@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import pooch
+from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES
 from mitreattack.download_stix import download_stix
 from mitreattack.stix20 import MitreAttackData
 
@@ -18,9 +19,6 @@ from errors import RequestError
 DEFAULT_CACHE_DIR = Path(os.environ.get("MITRE_NAVIGATOR_CACHE_DIR") or pooch.os_cache("mitre-navigator"))
 
 DatasetLoader = Callable[[str, str], MitreAttackData]
-
-# Before ATT&CK v12, mobile and ICS IDs were labelled with their own source name instead of "mitre-attack".
-_ATTACK_ID_SOURCES = frozenset({"mitre-attack", "mitre-mobile-attack", "mitre-ics-attack"})
 
 
 class DatasetError(RequestError):
@@ -42,10 +40,6 @@ class Technique:
         """ATT&CK numbers sub-techniques under their parent: T1566.002 belongs to T1566."""
         parent, dot, _ = self.attack_id.partition(".")
         return parent if dot else None
-
-    @property
-    def is_subtechnique(self) -> bool:
-        return self.parent_attack_id is not None
 
 
 @dataclass(frozen=True)
@@ -150,8 +144,11 @@ class DatasetRepository:
 
 
 def _attack_id(obj: Any) -> str | None:
-    """The object's ATT&CK ID, read like ``MitreAttackData.get_attack_id`` but also from pre-v12 mobile/ICS bundles."""
+    """The object's ATT&CK ID, read like ``MitreAttackData.get_attack_id`` but also from pre-v12 mobile/ICS bundles.
+
+    Before ATT&CK v12, mobile and ICS IDs were labelled with their own source name instead of "mitre-attack".
+    """
     references = obj.get("external_references", ())
-    if references and references[0].get("source_name") in _ATTACK_ID_SOURCES:
+    if references and references[0].get("source_name") in MITRE_ATTACK_ID_SOURCE_NAMES:
         return references[0].get("external_id")
     return None
