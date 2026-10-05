@@ -64,7 +64,6 @@ def main(
     argv: Sequence[str] | None = None,
     *,
     repository: DatasetRepository | None = None,
-    published_releases: upstream.ReleaseFetcher = upstream.published_releases,
 ) -> int:
     args = _parser().parse_args(argv)
     repository = repository or DatasetRepository()
@@ -104,7 +103,7 @@ def main(
             print(f"{layer}: removed (no request file)")
 
     if latest_domains:
-        _warn_if_library_outdated(sorted(latest_domains), published_releases)
+        _warn_if_library_outdated(sorted(latest_domains))
     return 1 if failures else 0
 
 
@@ -147,10 +146,10 @@ def _summary(resolved: ResolvedRequest) -> str:
     return summary
 
 
-def _warn_if_library_outdated(domains: Sequence[str], published_releases: upstream.ReleaseFetcher) -> None:
+def _warn_if_library_outdated(domains: Sequence[str]) -> None:
     """Warn when MITRE has published releases of ``domains`` that the installed mitreattack-python does not know."""
     try:
-        published = published_releases()
+        published = upstream.published_releases()
     except upstream.ReleaseIndexError as exc:
         _report("notice", f"could not check for newer ATT&CK releases: {exc}")
         return
