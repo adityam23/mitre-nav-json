@@ -1,0 +1,5 @@
+# Applies to every script under .github/scripts/.
+line-length = 120
+target-version = "py312"
+# Scripts import their sibling modules by name (e.g. `import stix`), so their directories count as first-party.
+src = ["mitre_navigator"]
