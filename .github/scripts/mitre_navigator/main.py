@@ -15,7 +15,10 @@ import sys
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
+import releases
+import upstream
 from config import ConfigError, LayerRequest, find_layers, find_requests, load_request, output_filename_for
 from errors import RequestError
 from layer import build_layer
@@ -32,9 +35,8 @@ class ResolvedRequest:
     actors: tuple[ThreatActor, ...]
 
 
-def resolve(path: Path, repository: DatasetRepository) -> ResolvedRequest:
-    """Parse a request file, load its dataset and resolve every threat actor it names."""
-    request = load_request(path)
+def resolve(request: LayerRequest, repository: DatasetRepository) -> ResolvedRequest:
+    """Load a request's dataset and resolve every threat actor it names."""
     dataset = repository.get(request.domain, request.version)
     # dict.fromkeys de-duplicates while keeping order: "APT28" and "Fancy Bear" are the same actor.
     actors = tuple(dict.fromkeys(dataset.find_actor(ref) for ref in request.threat_actors))
@@ -58,7 +60,12 @@ def prune_layers(requests: Sequence[Path], output_dir: Path) -> list[Path]:
     return orphans
 
 
-def main(argv: Sequence[str] | None = None, *, repository: DatasetRepository | None = None) -> int:
+def main(
+    argv: Sequence[str] | None = None,
+    *,
+    repository: DatasetRepository | None = None,
+    published_releases: upstream.ReleaseFetcher = upstream.published_releases,
+) -> int:
     args = _parser().parse_args(argv)
     repository = repository or DatasetRepository()
     writes_layers = args.command in ("generate", "sync")
@@ -72,18 +79,23 @@ def main(argv: Sequence[str] | None = None, *, repository: DatasetRepository | N
     # Each request is handled independently, so one broken file never blocks the others.
     collisions = _output_collisions(paths)
     failures = 0
+    latest_domains: set[str] = set()
     for path in paths:
         try:
             if path in collisions:
                 raise ConfigError(collisions[path])
-            resolved = resolve(path, repository)
+            request = load_request(path)
+            # Noted before resolving: an actor missing from "latest" may be in a release the library lacks.
+            if request.follows_latest:
+                latest_domains.add(request.domain)
+            resolved = resolve(request, repository)
             if writes_layers:
                 destination = write_layer(resolved, args.output_dir)
                 print(f"{path}: wrote {destination}")
             else:
                 print(f"{path}: OK ({_summary(resolved)})")
         except RequestError as exc:
-            _report_error(path, str(exc))
+            _report("error", str(exc), path=path)
             failures += 1
 
     # Failed requests keep their last good layer; only layers without a request file are removed.
@@ -91,6 +103,8 @@ def main(argv: Sequence[str] | None = None, *, repository: DatasetRepository | N
         for layer in prune_layers(paths, args.output_dir):
             print(f"{layer}: removed (no request file)")
 
+    if latest_domains:
+        _warn_if_library_outdated(sorted(latest_domains), published_releases)
     return 1 if failures else 0
 
 
@@ -133,10 +147,36 @@ def _summary(resolved: ResolvedRequest) -> str:
     return summary
 
 
-def _report_error(path: Path, message: str) -> None:
+def _warn_if_library_outdated(domains: Sequence[str], published_releases: upstream.ReleaseFetcher) -> None:
+    """Warn when MITRE has published releases of ``domains`` that the installed mitreattack-python does not know."""
+    try:
+        published = published_releases()
+    except upstream.ReleaseIndexError as exc:
+        _report("notice", f"could not check for newer ATT&CK releases: {exc}")
+        return
+    for domain in domains:
+        try:
+            versions = upstream.releases_for(published, domain)
+        except upstream.ReleaseIndexError as exc:
+            _report("notice", f"could not check for newer {domain} releases: {exc}")
+            continue
+        if unknown := releases.unknown(domain, versions):
+            upgrade = f"uv lock --script {os.path.relpath(__file__)} --upgrade-package mitreattack-python"
+            _report(
+                "warning",
+                f"MITRE has published {domain} {', '.join(unknown)}, which the installed mitreattack-python does not "
+                f'know, so "latest" still means {releases.LATEST_VERSION}; '
+                f"upgrade once a newer mitreattack-python is released: {upgrade}",
+            )
+
+
+def _report(level: Literal["error", "warning", "notice"], message: str, *, path: Path | None = None) -> None:
+    """Print to stderr and, on GitHub Actions, annotate the run."""
     if os.environ.get("GITHUB_ACTIONS") == "true":
-        print(f"::error file={path}::{message}")
-    print(f"{path}: error: {message}", file=sys.stderr)
+        location = f" file={path}" if path else ""
+        print(f"::{level}{location}::{message}")
+    prefix = f"{path}: " if path else ""
+    print(f"{prefix}{level}: {message}", file=sys.stderr)
 
 
 if __name__ == "__main__":

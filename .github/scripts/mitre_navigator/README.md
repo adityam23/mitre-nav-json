@@ -38,6 +38,8 @@ The tests use the locked dependencies through `uv export`; `--with-requirements 
 
 To pick up a new ATT&CK release, upgrade mitreattack-python. This updates `main.py.lock` to the newest version on PyPI; `main.py` does not need editing. Commit the new lockfile in a pull request; CI then regenerates every `version: latest` layer against the new release.
 
+As a reminder, whenever the converter runs a request that uses `version: latest`, it checks MITRE's [release index](https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master/index.json). If that domain has a release the installed library doesn't know, it prints a warning with the command below (a `::warning::` annotation in CI). Layers keep using the library's newest release until you upgrade, and MITRE often publishes a release before mitreattack-python supports it, so the upgrade may have to wait. CI only runs when requests or the converter change, so a new release can go unnoticed for a while. If the index can't be fetched, the converter prints a notice and carries on.
+
 ```sh
 uv lock --script .github/scripts/mitre_navigator/main.py --upgrade-package mitreattack-python   # from the repository root
 uv lock --script main.py --upgrade-package mitreattack-python                                   # from .github/scripts/mitre_navigator/
