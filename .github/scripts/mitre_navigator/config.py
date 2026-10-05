@@ -25,6 +25,7 @@ class LayerRequest:
     source: Path
     domain: str
     version: str
+    follows_latest: bool
     threat_actors: tuple[str, ...]
     layer_name: str | None
 
@@ -72,10 +73,12 @@ def parse_request(data: Any, *, source: Path) -> LayerRequest:
         raise ConfigError(f"unknown keys: {', '.join(unknown)} (allowed: {', '.join(sorted(_ALLOWED_KEYS))})")
 
     domain = _parse_domain(data.get("domain"))
+    version = _parse_version(data.get("version", releases.LATEST))
     return LayerRequest(
         source=source,
         domain=domain,
-        version=_parse_version(data.get("version", releases.LATEST), domain),
+        version=_resolve_release(domain, version),
+        follows_latest=version == releases.LATEST,
         threat_actors=_parse_threat_actors(data.get("threat_actors")),
         layer_name=_parse_layer_name(data.get("layer_name")),
     )
@@ -87,16 +90,19 @@ def _parse_domain(value: Any) -> str:
     return value
 
 
-def _parse_version(value: Any, domain: str) -> str:
-    """A concrete ATT&CK release; ``latest`` becomes the newest release the installed library knows."""
+def _parse_version(value: Any) -> str:
     if not isinstance(value, str):
         raise ConfigError(f"'version' must be a quoted string such as \"16.1\" or \"latest\"; got {value!r}")
-    value = value.strip()
-    release = releases.resolve(domain, value)
+    return value.strip()
+
+
+def _resolve_release(domain: str, version: str) -> str:
+    """A concrete ATT&CK release; ``latest`` becomes the newest release the installed library knows."""
+    release = releases.resolve(domain, version)
     if release is None:
         raise ConfigError(
-            f"'version' {value!r} is not a known {domain} release; "
-            f"use \"latest\" ({releases.resolve(domain, releases.LATEST)}) or an ATT&CK release such as \"16.1\""
+            f"'version' {version!r} is not a known {domain} release; "
+            f"use \"latest\" ({releases.LATEST_VERSION}) or an ATT&CK release such as \"16.1\""
         )
     return release
 
