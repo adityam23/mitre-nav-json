@@ -1,7 +1,7 @@
 # mitre_input/example-actor-labelled.yml
-domain: mobile-attack   # enterprise-attack | mobile-attack | ics-attack
-version: "17.1"             # optional, default "latest"; or a quoted ATT&CK release such as "16.1"
-threat_actors:              # optional
-  - APT-C-23                   # name, alias (e.g. "Fancy Bear") or ATT&CK group ID (e.g. G0007), case-insensitive
+domain: mobile-attack              # enterprise-attack | mobile-attack | ics-attack
+version: "17.1"                    # optional, default "latest"; or a quoted ATT&CK release such as "16.1"
+threat_actors:                     # optional
+  - APT-C-23                       # name, alias (e.g. "Fancy Bear") or ATT&CK group ID (e.g. G0007), case-insensitive
   - "Sandworm team"
 layer_name: multiple APT coverage  # optional

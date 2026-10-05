@@ -1,13 +1,12 @@
 """Build ATT&CK Navigator layer documents with mitreattack-python's navlayers."""
 
-from __future__ import annotations
-
 from collections.abc import Sequence
 from typing import Any
 
 from mitreattack.navlayers import Layer as NavigatorLayer
 from mitreattack.navlayers.core.versions import Versions
 
+from errors import RequestError
 from stix import AttackDataset, ThreatActor
 
 ACTOR_TECHNIQUE_COLOR = "#ff0000"
@@ -15,7 +14,7 @@ ACTOR_TECHNIQUE_COLOR = "#ff0000"
 Layer = dict[str, Any]
 
 
-class LayerBuildError(RuntimeError):
+class LayerBuildError(RequestError):
     """Raised when navlayers rejects the generated layer."""
 
 
@@ -65,7 +64,7 @@ def build_layer(dataset: AttackDataset, actors: Sequence[ThreatActor], *, name: 
             "layout": {"showID": False, "showName": True},
             "techniques": techniques,
             "legendItems": legend_items,
-            "metadata": [{"name": "threat_actor", "value": f"{a.name} ({a.attack_id})"} for a in actors],
+            "metadata": [{"name": "threat_actor", "value": a.label} for a in actors],
         }
     ).to_dict()
     if layer is None:
@@ -76,6 +75,6 @@ def build_layer(dataset: AttackDataset, actors: Sequence[ThreatActor], *, name: 
 def _describe(dataset: AttackDataset, actors: Sequence[ThreatActor]) -> str:
     description = f"Generated from MITRE ATT&CK {dataset.domain} v{dataset.attack_version}."
     if actors:
-        refs = ", ".join(f"{a.name} ({a.attack_id})" for a in actors)
+        refs = ", ".join(a.label for a in actors)
         description += f" Techniques used by {refs}, directly or via attributed campaigns, are highlighted in red."
     return description

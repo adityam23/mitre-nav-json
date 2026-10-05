@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from mitreattack import release_info
 
 from config import ConfigError, LayerRequest, load_request, parse_request
 
@@ -26,10 +27,17 @@ def test_load_request_full(tmp_path: Path) -> None:
 def test_defaults() -> None:
     request = parse_request({"domain": "ics-attack"}, source=SOURCE)
 
-    assert request.version == "latest"
+    assert request.version == release_info.LATEST_VERSION
     assert request.threat_actors == ()
     assert request.layer_name is None
     assert request.output_filename == "apt28.json"
+
+
+@pytest.mark.parametrize("version", ["latest", " latest "])
+def test_latest_resolves_to_newest_release(version: str) -> None:
+    request = parse_request({"domain": "enterprise-attack", "version": version}, source=SOURCE)
+
+    assert request.version == release_info.LATEST_VERSION
 
 
 @pytest.mark.parametrize(

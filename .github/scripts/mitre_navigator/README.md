@@ -13,8 +13,9 @@ Only [uv](https://docs.astral.sh/uv/) is needed. Run the converter from the repo
 ```sh
 uv run --locked --script .github/scripts/mitre_navigator/main.py validate                       # every request in mitre_input/
 uv run --locked --script .github/scripts/mitre_navigator/main.py validate mitre_input/apt28.yaml
+uv run --locked --script .github/scripts/mitre_navigator/main.py generate                       # every request; never removes layers
 uv run --locked --script .github/scripts/mitre_navigator/main.py generate mitre_input/apt28.yaml
-uv run --locked --script .github/scripts/mitre_navigator/main.py sync                           # what CI runs
+uv run --locked --script .github/scripts/mitre_navigator/main.py sync                           # generate, then remove orphaned layers; what CI runs
 ```
 
 Tests are not run in CI, so run them before pushing.

@@ -8,8 +8,6 @@
 # ///
 """Command line entry point: ``mitre-navigator {validate,generate,sync}``."""
 
-from __future__ import annotations
-
 import argparse
 import json
 import os
@@ -19,8 +17,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from config import ConfigError, LayerRequest, find_layers, find_requests, load_request, output_filename_for
-from layer import LayerBuildError, build_layer
-from stix import ActorLookupError, AttackDataset, DatasetError, DatasetRepository, ThreatActor
+from errors import RequestError
+from layer import build_layer
+from stix import AttackDataset, DatasetRepository, ThreatActor
 
 DEFAULT_INPUT_DIR = Path("mitre_input")
 DEFAULT_OUTPUT_DIR = Path("mitre_output")
@@ -83,7 +82,7 @@ def main(argv: Sequence[str] | None = None, *, repository: DatasetRepository | N
                 print(f"{path}: wrote {destination}")
             else:
                 print(f"{path}: OK ({_summary(resolved)})")
-        except (ConfigError, DatasetError, ActorLookupError, LayerBuildError) as exc:
+        except RequestError as exc:
             _report_error(path, str(exc))
             failures += 1
 
@@ -100,19 +99,16 @@ def _parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True)
 
     validate = commands.add_parser("validate", help="check request files without writing output")
-    validate.add_argument("files", nargs="*", type=Path, help="default: every request in --input-dir")
-    validate.add_argument("--input-dir", type=Path, default=DEFAULT_INPUT_DIR)
-
     generate = commands.add_parser("generate", help="write a Navigator layer for each request file")
-    generate.add_argument("files", nargs="+", type=Path)
-    generate.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-
-    sync = commands.add_parser(
-        "sync", help="regenerate every request in --input-dir and remove layers whose request is gone"
-    )
+    sync = commands.add_parser("sync", help="generate every request and remove layers whose request is gone")
     sync.set_defaults(files=[])
-    sync.add_argument("--input-dir", type=Path, default=DEFAULT_INPUT_DIR)
-    sync.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+
+    for command in (validate, generate):
+        command.add_argument("files", nargs="*", type=Path, help="default: every request in --input-dir")
+    for command in (validate, generate, sync):
+        command.add_argument("--input-dir", type=Path, default=DEFAULT_INPUT_DIR)
+    for command in (generate, sync):
+        command.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     return parser
 
 
@@ -133,7 +129,7 @@ def _summary(resolved: ResolvedRequest) -> str:
     dataset = resolved.dataset
     summary = f"{dataset.domain} v{dataset.attack_version}, {len(dataset.techniques)} techniques"
     for actor in resolved.actors:
-        summary += f"; {actor.name} ({actor.attack_id}): {len(dataset.techniques_used_by(actor))} techniques"
+        summary += f"; {actor.label}: {len(dataset.techniques_used_by(actor))} techniques"
     return summary
 
 

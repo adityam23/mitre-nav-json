@@ -2,7 +2,6 @@ from collections.abc import Callable
 from pathlib import Path
 
 import pytest
-from mitreattack import release_info
 from mitreattack.stix20 import MitreAttackData
 
 from stix import ActorLookupError, AttackDataset, DatasetError, DatasetRepository, download_dataset
@@ -28,6 +27,11 @@ def test_find_actor_ambiguous(dataset: AttackDataset) -> None:
         dataset.find_actor("Shared Alias")
 
 
+def test_find_actor_suggests_every_actor_sharing_a_close_alias(dataset: AttackDataset) -> None:
+    with pytest.raises(ActorLookupError, match="did you mean APT29 \\(G0016\\), Other \\(G0099\\)\\?"):
+        dataset.find_actor("Shared Alais")
+
+
 def test_find_actor_unknown_suggests_close_matches(dataset: AttackDataset) -> None:
     with pytest.raises(ActorLookupError, match="not found in enterprise-attack; did you mean APT28 \\(G0007\\)"):
         dataset.find_actor("Fancy Baer")
@@ -44,9 +48,7 @@ def test_revoked_relationships_are_ignored(dataset: AttackDataset) -> None:
     assert dataset.techniques_used_by(dataset.find_actor("APT29")) == []
 
 
-def test_repository_resolves_latest_and_loads_each_release_once(
-    load_attack_data: Callable[[], MitreAttackData],
-) -> None:
+def test_repository_loads_each_release_once(load_attack_data: Callable[[], MitreAttackData]) -> None:
     calls: list[tuple[str, str]] = []
 
     def load(domain: str, release: str) -> MitreAttackData:
@@ -54,12 +56,13 @@ def test_repository_resolves_latest_and_loads_each_release_once(
         return load_attack_data()
 
     repository = DatasetRepository(load=load)
-    latest = repository.get("enterprise-attack", "latest")
+    first = repository.get("enterprise-attack", "16.1")
 
-    assert latest.attack_version == release_info.LATEST_VERSION
-    assert repository.get("enterprise-attack", release_info.LATEST_VERSION) is latest
+    assert first.attack_version == "16.1"
+    assert repository.get("enterprise-attack", "16.1") is first
     repository.get("enterprise-attack", "15.1")
-    assert calls == [("enterprise-attack", release_info.LATEST_VERSION), ("enterprise-attack", "15.1")]
+    repository.get("ics-attack", "15.1")
+    assert calls == [("enterprise-attack", "16.1"), ("enterprise-attack", "15.1"), ("ics-attack", "15.1")]
 
 
 def test_download_failure_is_a_dataset_error(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

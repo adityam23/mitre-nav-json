@@ -1,7 +1,5 @@
 """Parsing and validation of the YAML request files placed in ``mitre_input/``."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -9,13 +7,14 @@ from typing import Any
 import yaml
 
 import releases
+from errors import RequestError
 
 _ALLOWED_KEYS = frozenset({"domain", "version", "threat_actors", "layer_name"})
 _REQUEST_SUFFIXES = (".yaml", ".yml")
 _LAYER_SUFFIX = ".json"
 
 
-class ConfigError(ValueError):
+class ConfigError(RequestError):
     """Raised when a request file is malformed."""
 
 
@@ -25,9 +24,9 @@ class LayerRequest:
 
     source: Path
     domain: str
-    version: str = releases.LATEST
-    threat_actors: tuple[str, ...] = ()
-    layer_name: str | None = None
+    version: str
+    threat_actors: tuple[str, ...]
+    layer_name: str | None
 
     @property
     def output_filename(self) -> str:
@@ -89,6 +88,7 @@ def _parse_domain(value: Any) -> str:
 
 
 def _parse_version(value: Any, domain: str) -> str:
+    """A concrete ATT&CK release; ``latest`` becomes the newest release the installed library knows."""
     if not isinstance(value, str):
         raise ConfigError(f"'version' must be a quoted string such as \"16.1\" or \"latest\"; got {value!r}")
     value = value.strip()
@@ -97,7 +97,7 @@ def _parse_version(value: Any, domain: str) -> str:
             f"'version' {value!r} is not a known {domain} release; "
             f"use \"latest\" ({releases.resolve(releases.LATEST)}) or an ATT&CK release such as \"16.1\""
         )
-    return value
+    return releases.resolve(value)
 
 
 def _parse_threat_actors(value: Any) -> tuple[str, ...]:
@@ -105,13 +105,11 @@ def _parse_threat_actors(value: Any) -> tuple[str, ...]:
         return ()
     if not isinstance(value, list):
         raise ConfigError("'threat_actors' must be a list of names, aliases or ATT&CK group IDs")
-    actors: list[str] = []
     for item in value:
         if not isinstance(item, str) or not item.strip():
             raise ConfigError(f"'threat_actors' entries must be non-empty strings; got {item!r}")
-        if item.strip() not in actors:
-            actors.append(item.strip())
-    return tuple(actors)
+    # dict.fromkeys drops repeated names while keeping the order they were listed in.
+    return tuple(dict.fromkeys(item.strip() for item in value))
 
 
 def _parse_layer_name(value: Any) -> str | None:
