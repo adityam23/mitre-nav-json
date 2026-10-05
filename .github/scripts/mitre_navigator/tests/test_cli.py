@@ -1,7 +1,6 @@
 import json
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Protocol
 
 import pytest
 
@@ -10,9 +9,7 @@ import upstream
 from main import main
 from stix import DatasetRepository
 
-
-class Run(Protocol):
-    def __call__(self, argv: Sequence[str], *, published_releases: upstream.ReleaseFetcher | None = None) -> int: ...
+Run = Callable[[Sequence[str]], int]
 
 
 @pytest.fixture
@@ -23,19 +20,17 @@ def inputs(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def published() -> dict[str, tuple[str, ...]]:
+def published(monkeypatch: pytest.MonkeyPatch) -> dict[str, tuple[str, ...]]:
     """Releases in the stand-in for MITRE's index; tests may add some."""
-    return {}
+    releases: dict[str, tuple[str, ...]] = {}
+    monkeypatch.setattr(upstream, "published_releases", lambda: releases)
+    return releases
 
 
 @pytest.fixture
 def run(repository: DatasetRepository, published: dict[str, tuple[str, ...]]) -> Run:
-    """``main`` against the test dataset and release index (or a given fetcher), so no test reaches the network."""
-
-    def run(argv: Sequence[str], *, published_releases: upstream.ReleaseFetcher | None = None) -> int:
-        return main(argv, repository=repository, published_releases=published_releases or (lambda: published))
-
-    return run
+    """``main`` against the test dataset and release index, so no test reaches the network."""
+    return lambda argv: main(argv, repository=repository)
 
 
 def test_generate_writes_layer(inputs: Path, tmp_path: Path, run: Run) -> None:
@@ -226,22 +221,26 @@ def test_warns_when_library_lacks_a_published_release(
     assert "--upgrade-package mitreattack-python" in captured.err
 
 
-def test_pinned_versions_skip_the_release_check(inputs: Path, run: Run) -> None:
+def test_pinned_versions_skip_the_release_check(inputs: Path, run: Run, monkeypatch: pytest.MonkeyPatch) -> None:
     def fail() -> dict[str, tuple[str, ...]]:
         raise AssertionError("the release index should not be fetched")
 
+    monkeypatch.setattr(upstream, "published_releases", fail)
     (inputs / "pinned.yaml").write_text('domain: enterprise-attack\nversion: "16.1"\n')
 
-    assert run(["validate", "--input-dir", str(inputs)], published_releases=fail) == 0
+    assert run(["validate", "--input-dir", str(inputs)]) == 0
 
 
-def test_unreachable_release_index_is_only_a_notice(inputs: Path, run: Run, capsys: pytest.CaptureFixture[str]) -> None:
+def test_unreachable_release_index_is_only_a_notice(
+    inputs: Path, run: Run, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     def unreachable() -> dict[str, tuple[str, ...]]:
         raise upstream.ReleaseIndexError("cannot read index.json: offline")
 
+    monkeypatch.setattr(upstream, "published_releases", unreachable)
     (inputs / "latest.yaml").write_text("domain: enterprise-attack\n")
 
-    assert run(["validate", "--input-dir", str(inputs)], published_releases=unreachable) == 0
+    assert run(["validate", "--input-dir", str(inputs)]) == 0
 
     notice = "notice: could not check for newer ATT&CK releases: cannot read index.json: offline"
     assert notice in capsys.readouterr().err

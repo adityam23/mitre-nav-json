@@ -3,15 +3,13 @@
 import http.client
 import json
 import urllib.request
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 from pathlib import PurePosixPath
 from typing import Any
 from urllib.parse import urlparse
 
 INDEX_URL = "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master/index.json"
 _TIMEOUT_SECONDS = 10
-
-ReleaseFetcher = Callable[[], Mapping[str, tuple[str, ...]]]
 
 
 class ReleaseIndexError(Exception):
