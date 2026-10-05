@@ -1,7 +1,5 @@
 """The ATT&CK domains and releases known to the installed mitreattack-python library."""
 
-from __future__ import annotations
-
 from mitreattack import release_info
 
 LATEST = "latest"

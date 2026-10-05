@@ -26,6 +26,21 @@ def test_generate_writes_layer(inputs: Path, tmp_path: Path, repository: Dataset
     assert red == ["T1059.001", "T1566.002"]
 
 
+def test_generate_without_files_generates_every_request(
+    inputs: Path, tmp_path: Path, repository: DatasetRepository
+) -> None:
+    (inputs / "a.yaml").write_text("domain: enterprise-attack\n")
+    (inputs / "b.yml").write_text("domain: enterprise-attack\nthreat_actors: [APT28]\n")
+    output_dir = tmp_path / "out"
+    output_dir.mkdir()
+    (output_dir / "orphan.json").write_text("{}")
+
+    assert main(["generate", "--input-dir", str(inputs), "--output-dir", str(output_dir)], repository=repository) == 0
+
+    # Unlike sync, generate never removes layers.
+    assert sorted(p.name for p in output_dir.iterdir()) == ["a.json", "b.json", "orphan.json"]
+
+
 def test_actor_listed_by_several_names_counts_once(
     inputs: Path, tmp_path: Path, repository: DatasetRepository
 ) -> None:

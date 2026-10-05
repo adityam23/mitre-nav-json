@@ -1,7 +1,5 @@
 """Load MITRE ATT&CK STIX releases via mitreattack-python and index the objects needed for layers."""
 
-from __future__ import annotations
-
 import difflib
 import os
 from collections.abc import Callable
@@ -13,6 +11,7 @@ from mitreattack.download_stix import download_stix
 from mitreattack.stix20 import MitreAttackData
 
 import releases
+from errors import RequestError
 
 # CI points MITRE_NAVIGATOR_CACHE_DIR at a directory it persists between runs.
 DEFAULT_CACHE_DIR = Path(os.environ.get("MITRE_NAVIGATOR_CACHE_DIR") or pooch.os_cache("mitre-navigator"))
@@ -20,11 +19,11 @@ DEFAULT_CACHE_DIR = Path(os.environ.get("MITRE_NAVIGATOR_CACHE_DIR") or pooch.os
 DatasetLoader = Callable[[str, str], MitreAttackData]
 
 
-class DatasetError(RuntimeError):
+class DatasetError(RequestError):
     """Raised when a STIX dataset cannot be obtained."""
 
 
-class ActorLookupError(LookupError):
+class ActorLookupError(RequestError):
     """Raised when a threat actor reference cannot be resolved to exactly one group."""
 
 
@@ -33,7 +32,12 @@ class Technique:
     stix_id: str
     attack_id: str
     name: str
-    parent_attack_id: str | None = None
+
+    @property
+    def parent_attack_id(self) -> str | None:
+        """ATT&CK numbers sub-techniques under their parent: T1566.002 belongs to T1566."""
+        parent, dot, _ = self.attack_id.partition(".")
+        return parent if dot else None
 
     @property
     def is_subtechnique(self) -> bool:
@@ -46,6 +50,10 @@ class ThreatActor:
     attack_id: str
     name: str
     aliases: tuple[str, ...]
+
+    @property
+    def label(self) -> str:
+        return f"{self.name} ({self.attack_id})"
 
 
 def download_dataset(domain: str, release: str, *, cache_dir: Path = DEFAULT_CACHE_DIR) -> MitreAttackData:
@@ -72,22 +80,14 @@ class AttackDataset:
         self.attack_version = attack_version
         self._data = data
 
-        parents = data.get_all_parent_techniques_of_all_subtechniques()
         self.techniques = sorted(
             (
-                Technique(
-                    stix_id=obj.id,
-                    attack_id=data.get_attack_id(obj.id),
-                    name=obj.name,
-                    parent_attack_id=next(
-                        (data.get_attack_id(entry["object"].id) for entry in parents.get(obj.id, ())), None
-                    ),
-                )
+                Technique(stix_id=obj.id, attack_id=data.get_attack_id(obj.id), name=obj.name)
                 for obj in data.get_techniques(remove_revoked_deprecated=True)
             ),
             key=lambda t: t.attack_id,
         )
-        self.actors = sorted(
+        actors = sorted(
             (
                 ThreatActor(
                     stix_id=obj.id,
@@ -99,34 +99,32 @@ class AttackDataset:
             ),
             key=lambda a: a.attack_id,
         )
-        self._techniques_by_stix_id = {t.stix_id: t for t in self.techniques}
+        # Every case-insensitive name, alias and group ID -> the actors known by it (aliases can be shared).
+        self._actors_by_key: dict[str, list[ThreatActor]] = {}
+        for actor in actors:
+            for key in {key.casefold() for key in (actor.attack_id, actor.name, *actor.aliases)}:
+                self._actors_by_key.setdefault(key, []).append(actor)
 
     def find_actor(self, reference: str) -> ThreatActor:
         """Resolve a name, alias or ATT&CK group ID (case-insensitive) to exactly one actor."""
         needle = reference.casefold()
-        matches = [actor for actor in self.actors if needle in _actor_keys(actor)]
+        matches = self._actors_by_key.get(needle, [])
         if len(matches) == 1:
             return matches[0]
         if matches:
-            candidates = ", ".join(f"{a.name} ({a.attack_id})" for a in matches)
-            raise ActorLookupError(f"threat actor '{reference}' is ambiguous: {candidates}")
+            raise ActorLookupError(f"threat actor '{reference}' is ambiguous: {', '.join(a.label for a in matches)}")
 
-        known = {key: actor for actor in self.actors for key in _actor_keys(actor)}
-        suggestions = difflib.get_close_matches(needle, known, n=3, cutoff=0.6)
+        suggestions = difflib.get_close_matches(needle, self._actors_by_key, n=3, cutoff=0.6)
         hint = ""
         if suggestions:
-            hint = "; did you mean " + ", ".join(
-                sorted({f"{known[s].name} ({known[s].attack_id})" for s in suggestions})
-            ) + "?"
+            labels = sorted({actor.label for key in suggestions for actor in self._actors_by_key[key]})
+            hint = f"; did you mean {', '.join(labels)}?"
         raise ActorLookupError(f"threat actor '{reference}' not found in {self.domain}{hint}")
 
     def techniques_used_by(self, actor: ThreatActor) -> list[Technique]:
         """Techniques the group uses directly or through campaigns attributed to it."""
-        stix_ids = {entry["object"].id for entry in self._data.get_techniques_used_by_group(actor.stix_id)}
-        return sorted(
-            (self._techniques_by_stix_id[s] for s in stix_ids if s in self._techniques_by_stix_id),
-            key=lambda t: t.attack_id,
-        )
+        used = {entry["object"].id for entry in self._data.get_techniques_used_by_group(actor.stix_id)}
+        return [technique for technique in self.techniques if technique.stix_id in used]
 
 
 class DatasetRepository:
@@ -136,13 +134,8 @@ class DatasetRepository:
         self._load = load
         self._cache: dict[tuple[str, str], AttackDataset] = {}
 
-    def get(self, domain: str, version: str) -> AttackDataset:
-        release = releases.resolve(version)
+    def get(self, domain: str, release: str) -> AttackDataset:
         key = (domain, release)
         if key not in self._cache:
             self._cache[key] = AttackDataset(self._load(domain, release), domain=domain, attack_version=release)
         return self._cache[key]
-
-
-def _actor_keys(actor: ThreatActor) -> set[str]:
-    return {key.casefold() for key in (actor.attack_id, actor.name, *actor.aliases)}
