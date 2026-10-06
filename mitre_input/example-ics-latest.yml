@@ -1,0 +1,6 @@
+# mitre_input/example-ics-latest.yml
+domain: ics-attack   # enterprise-attack | mobile-attack | ics-attack
+version: LATEST      # optional; the "latest" keyword is case-insensitive
+threat_actors:       # optional; a technique's score is the number of listed actors using it
+  - Sandworm Team
+  - XENOTIME         # alias (TEMP.Veles)

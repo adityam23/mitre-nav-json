@@ -65,7 +65,8 @@ jobs:
           MITRE_NAVIGATOR_CACHE_DIR: ${{ runner.temp }}/mitre-stix
         run: uv run --locked --script "$SCRIPT" sync
 
-      # Commits made with GITHUB_TOKEN do not trigger further workflow runs, so this cannot loop.
+      # A GITHUB_TOKEN commit starts no run on main; on a PR it queues a run that waits for approval.
+      # Approving it is harmless: that run finds the layers up to date and commits nothing, so this cannot loop.
       - name: Commit generated layers
         if: env.CAN_PUSH == 'true'
         run: |

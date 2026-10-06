@@ -85,6 +85,8 @@ def parse_request(data: Any, *, source: Path) -> LayerRequest:
 
 
 def _parse_domain(value: Any) -> str:
+    if value is None:
+        raise ConfigError(f"'domain' must be one of {', '.join(releases.DOMAINS)}; it is missing")
     if value not in releases.DOMAINS:
         raise ConfigError(f"'domain' must be one of {', '.join(releases.DOMAINS)}; got {value!r}")
     return value
@@ -93,7 +95,9 @@ def _parse_domain(value: Any) -> str:
 def _parse_version(value: Any) -> str:
     if not isinstance(value, str):
         raise ConfigError(f"'version' must be a quoted string such as \"16.1\" or \"latest\"; got {value!r}")
-    return value.strip()
+    version = value.strip()
+    # The keyword is case-insensitive like actor names; release numbers must match exactly.
+    return releases.LATEST if version.casefold() == releases.LATEST else version
 
 
 def _resolve_release(domain: str, version: str) -> str:

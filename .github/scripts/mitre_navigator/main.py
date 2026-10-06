@@ -21,7 +21,7 @@ import releases
 import upstream
 from config import ConfigError, LayerRequest, find_layers, find_requests, load_request, output_filename_for
 from errors import RequestError
-from layer import build_layer
+from layer import Layer, build_layer
 from stix import AttackDataset, DatasetRepository, ThreatActor
 
 DEFAULT_INPUT_DIR = Path("mitre_input")
@@ -43,8 +43,7 @@ def resolve(request: LayerRequest, repository: DatasetRepository) -> ResolvedReq
     return ResolvedRequest(request=request, dataset=dataset, actors=actors)
 
 
-def write_layer(resolved: ResolvedRequest, output_dir: Path) -> Path:
-    layer = build_layer(resolved.dataset, resolved.actors, name=resolved.request.layer_name)
+def write_layer(layer: Layer, resolved: ResolvedRequest, output_dir: Path) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
     destination = output_dir / resolved.request.output_filename
     destination.write_text(json.dumps(layer, indent=2) + "\n", encoding="utf-8")
@@ -88,8 +87,10 @@ def main(
             if request.follows_latest:
                 latest_domains.add(request.domain)
             resolved = resolve(request, repository)
+            # validate builds the layer too.
+            layer = build_layer(resolved.dataset, resolved.actors, name=resolved.request.layer_name)
             if writes_layers:
-                destination = write_layer(resolved, args.output_dir)
+                destination = write_layer(layer, resolved, args.output_dir)
                 print(f"{path}: wrote {destination}")
             else:
                 print(f"{path}: OK ({_summary(resolved)})")
