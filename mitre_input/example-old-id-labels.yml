@@ -1,0 +1,6 @@
+# mitre_input/example-old-id-labels.yml
+domain: ics-attack   # enterprise-attack | mobile-attack | ics-attack
+version: "11.3"      # optional; releases before ATT&CK v12 label mobile and ICS IDs differently
+threat_actors:       # optional
+  - ALLANITE         # its alias list in 11.3 leaves out its own name
+  - Dragonfly

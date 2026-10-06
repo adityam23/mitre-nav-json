@@ -20,6 +20,8 @@ DEFAULT_CACHE_DIR = Path(os.environ.get("MITRE_NAVIGATOR_CACHE_DIR") or pooch.os
 
 DatasetLoader = Callable[[str, str], MitreAttackData]
 
+_MALFORMED_IDS_SHOWN = 3
+
 
 class DatasetError(RequestError):
     """Raised when a STIX dataset cannot be obtained."""
@@ -82,13 +84,19 @@ class AttackDataset:
         self.attack_version = attack_version
         self._data = data
 
-        self.techniques = sorted(
-            (
-                Technique(stix_id=obj.id, attack_id=_attack_id(obj), name=obj.name)
-                for obj in data.get_techniques(remove_revoked_deprecated=True)
-            ),
-            key=lambda t: t.attack_id,
-        )
+        techniques = [
+            Technique(stix_id=obj.id, attack_id=_attack_id(obj), name=obj.name)
+            for obj in data.get_techniques(remove_revoked_deprecated=True)
+        ]
+        # navlayers rejects a whole layer over one such ID but only prints which, so name them in the error.
+        if malformed := sorted(str(t.attack_id) for t in techniques if not _navigator_accepts(t.attack_id)):
+            hidden = len(malformed) - _MALFORMED_IDS_SHOWN
+            more = f" and {hidden} more" if hidden > 0 else ""
+            raise DatasetError(
+                f"MITRE's ATT&CK {domain} v{attack_version} bundle has technique IDs Navigator cannot load: "
+                f"{', '.join(malformed[:_MALFORMED_IDS_SHOWN])}{more}"
+            )
+        self.techniques = sorted(techniques, key=lambda t: t.attack_id)
         actors = sorted(
             (
                 ThreatActor(
@@ -152,3 +160,8 @@ def _attack_id(obj: Any) -> str | None:
     if references and references[0].get("source_name") in MITRE_ATTACK_ID_SOURCE_NAMES:
         return references[0].get("external_id")
     return None
+
+
+def _navigator_accepts(attack_id: str | None) -> bool:
+    """Whether navlayers accepts ``attack_id`` as a technique ID; its only rule is a leading "T"."""
+    return attack_id is not None and attack_id.startswith("T")

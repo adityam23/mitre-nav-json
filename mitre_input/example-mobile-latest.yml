@@ -1,0 +1,5 @@
+# mitre_input/example-mobile-latest.yml
+domain: mobile-attack   # enterprise-attack | mobile-attack | ics-attack
+                        # version is optional: leaving it out means "latest"
+threat_actors:          # optional
+  - g0056               # ATT&CK group ID, case-insensitive (PROMETHIUM)

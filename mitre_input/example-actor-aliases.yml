@@ -1,0 +1,7 @@
+# mitre_input/example-actor-aliases.yml
+domain: enterprise-attack   # enterprise-attack | mobile-attack | ics-attack
+version: "16.1"             # optional, default "latest"; or a quoted ATT&CK release such as "16.1"
+threat_actors:              # optional; the same group three ways is listed once in the layer
+  - Fancy Bear              # alias
+  - G0007                   # ATT&CK group ID
+  - apt28                   # name, case-insensitive
