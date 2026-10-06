@@ -1,0 +1,611 @@
+{
+  "name": "Sandworm Team, TEMP.Veles (ics-attack)",
+  "domain": "ics-attack",
+  "description": "Generated from MITRE ATT&CK ics-attack v19.2. Techniques used by Sandworm Team (G0034), TEMP.Veles (G0088), directly or via attributed campaigns, are highlighted in red.",
+  "versions": {
+    "layer": "4.5",
+    "attack": "19",
+    "navigator": "5.0.0"
+  },
+  "layout": {
+    "showID": false,
+    "showName": true,
+    "aggregateFunction": "average"
+  },
+  "techniques": [
+    {
+      "techniqueID": "T0800",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0801",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0802",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0806",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0807",
+      "comment": "Used by: Sandworm Team, TEMP.Veles",
+      "enabled": true,
+      "score": 2,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0809",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0811",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0813",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0814",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0815",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0816",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0817",
+      "comment": "Used by: TEMP.Veles",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0819",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0820",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0821",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0822",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0823",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0826",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0827",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0828",
+      "comment": "Used by: Sandworm Team, TEMP.Veles",
+      "enabled": true,
+      "score": 2,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0829",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0830",
+      "comment": "Used by: TEMP.Veles",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0831",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0832",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0834",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0835",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0836",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0837",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0838",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0840",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0842",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0843",
+      "enabled": true,
+      "showSubtechniques": true
+    },
+    {
+      "techniqueID": "T0843.001",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0843.002",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0843.003",
+      "comment": "Used by: TEMP.Veles",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0845",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0846",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0846.001",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0846.002",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0846.003",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0847",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0848",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0849",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0851",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0852",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0853",
+      "comment": "Used by: Sandworm Team, TEMP.Veles",
+      "enabled": true,
+      "score": 2,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0858",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0859",
+      "comment": "Used by: Sandworm Team, TEMP.Veles",
+      "enabled": true,
+      "score": 2,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0860",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0861",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0862",
+      "comment": "Used by: TEMP.Veles",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0863",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0864",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0865",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0866",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0867",
+      "comment": "Used by: Sandworm Team, TEMP.Veles",
+      "enabled": true,
+      "score": 2,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0868",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0869",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0871",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0872",
+      "comment": "Used by: TEMP.Veles",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0873",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0873.001",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0874",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0877",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0878",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0879",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0880",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0881",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0882",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0883",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0884",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0885",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0886",
+      "comment": "Used by: Sandworm Team, TEMP.Veles",
+      "enabled": true,
+      "score": 2,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0887",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0888",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0889",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0890",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0892",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0893",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0894",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0895",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1691",
+      "enabled": true,
+      "showSubtechniques": true
+    },
+    {
+      "techniqueID": "T1691.001",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1691.002",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1692",
+      "enabled": true,
+      "showSubtechniques": true
+    },
+    {
+      "techniqueID": "T1692.001",
+      "comment": "Used by: Sandworm Team, TEMP.Veles",
+      "enabled": true,
+      "score": 2,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1692.002",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1693",
+      "enabled": true,
+      "showSubtechniques": true
+    },
+    {
+      "techniqueID": "T1693.001",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1693.002",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1694",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1694.001",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1694.002",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1695",
+      "enabled": true,
+      "showSubtechniques": true
+    },
+    {
+      "techniqueID": "T1695.001",
+      "comment": "Used by: Sandworm Team",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1695.002",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1695.003",
+      "enabled": true,
+      "showSubtechniques": false
+    }
+  ],
+  "legendItems": [
+    {
+      "label": "Used by Sandworm Team, TEMP.Veles",
+      "color": "#ff0000"
+    }
+  ],
+  "metadata": [
+    {
+      "name": "threat_actor",
+      "value": "Sandworm Team (G0034)"
+    },
+    {
+      "name": "threat_actor",
+      "value": "TEMP.Veles (G0088)"
+    }
+  ]
+}

@@ -1,0 +1,438 @@
+{
+  "name": "ALLANITE, Dragonfly (ics-attack)",
+  "domain": "ics-attack",
+  "description": "Generated from MITRE ATT&CK ics-attack v11.3. Techniques used by ALLANITE (G1000), Dragonfly (G0035), directly or via attributed campaigns, are highlighted in red.",
+  "versions": {
+    "layer": "4.5",
+    "attack": "11",
+    "navigator": "5.0.0"
+  },
+  "layout": {
+    "showID": false,
+    "showName": true,
+    "aggregateFunction": "average"
+  },
+  "techniques": [
+    {
+      "techniqueID": "T0800",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0801",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0802",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0803",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0804",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0805",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0806",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0807",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0809",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0811",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0812",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0813",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0814",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0815",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0816",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0817",
+      "comment": "Used by: ALLANITE, Dragonfly",
+      "enabled": true,
+      "score": 2,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0819",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0820",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0821",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0822",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0823",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0826",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0827",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0828",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0829",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0830",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0831",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0832",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0834",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0835",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0836",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0837",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0838",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0839",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0840",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0842",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0843",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0845",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0846",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0847",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0848",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0849",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0851",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0852",
+      "comment": "Used by: ALLANITE",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0853",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0855",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0856",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0857",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0858",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0859",
+      "comment": "Used by: ALLANITE",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0860",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0861",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0862",
+      "comment": "Used by: Dragonfly",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0863",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0864",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0865",
+      "comment": "Used by: ALLANITE",
+      "enabled": true,
+      "score": 1,
+      "color": "#ff0000",
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0866",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0867",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0868",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0869",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0871",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0872",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0873",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0874",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0877",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0878",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0879",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0880",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0881",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0882",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0883",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0884",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0885",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0886",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0887",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0888",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0889",
+      "enabled": true,
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T0890",
+      "enabled": true,
+      "showSubtechniques": false
+    }
+  ],
+  "legendItems": [
+    {
+      "label": "Used by ALLANITE, Dragonfly",
+      "color": "#ff0000"
+    }
+  ],
+  "metadata": [
+    {
+      "name": "threat_actor",
+      "value": "ALLANITE (G1000)"
+    },
+    {
+      "name": "threat_actor",
+      "value": "Dragonfly (G0035)"
+    }
+  ]
+}
